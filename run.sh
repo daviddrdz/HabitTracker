@@ -3,7 +3,7 @@
 javac -d bin src/*.java
 
 if [ $? -eq 0 ]; then
-    echo "--- Ejecutando programa ---"
+    clear
     java -cp bin Main
 else
     echo "Error de compilación"
