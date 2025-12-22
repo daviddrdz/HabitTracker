@@ -1,11 +1,13 @@
-public class HabitManager {
-    private final short INIT_HABITS = 3;
-    private final short MAX_HABITS = 10;
-    private Habit habits[];
+import java.time.LocalDate;
+import java.util.ArrayList;
+
+class HabitManager {
+    private final short MAX_HABITS = 3;
+    private ArrayList<Habit> habits;
     private short counter;
 
     public HabitManager() {
-        habits = new Habit[INIT_HABITS];
+        habits = new ArrayList<>();
         counter = 0;
     }
 
@@ -14,40 +16,47 @@ public class HabitManager {
     }
 
     public boolean isFull() {
-        return counter == MAX_HABITS;
+        return counter >= MAX_HABITS;
     }
 
-    public Habit getHabit(short index) {
-        return habits[index];
+    public Habit getHabit(short habitIndex) {
+        return habits.get(habitIndex);
     }
 
     public short getCounter() {
         return counter;
     }
 
-    private void grow() {
-        if (counter >= INIT_HABITS) {
-            Habit temp[] = new Habit[counter + 1];
-            for (int i = 0; i < habits.length; i++) {
-                temp[i] = habits[i];
-            }
-            habits = temp;
-        }
-    }
-
-    public boolean addHabit(String name) {
+    public boolean addHabit(String name, LocalDate creationDate) {
         if (!isFull()) {
-            grow();
-            habits[counter++] = new Habit(name);
+            Habit habitToAdd = new Habit(name, creationDate);
+            habits.add(habitToAdd);
+            counter++;
             return true;
         }
         return false;
     }
 
-    public boolean checkHabit(short index) {
-        if (0 <= index && index < counter) {
-            habits[index].check();
-            return true;
+    public short checkHabit(short habitIndex, LocalDate date) {
+        if ((0 <= habitIndex && habitIndex < counter)) {
+            if (!habits.get(habitIndex).isChecked(date)) {
+                if (habits.get(habitIndex).check(date)) {
+                    return 1;
+                }
+            } else {
+                return 0;
+            }
+        }
+        return -1;
+    }
+
+    public boolean deleteHabit(short habitIndex) {
+        if (!isEmpty()) {
+            if (0 <= habitIndex && habitIndex < counter) {
+                habits.remove(habitIndex);
+                counter--;
+                return true;
+            }
         }
         return false;
     }

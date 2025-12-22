@@ -19,4 +19,8 @@ class Log {
     public void check() {
         checked = true;
     }
+
+    public boolean isChecked() {
+        return checked;
+    }
 }

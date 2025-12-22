@@ -1,13 +1,17 @@
-public class Habit {
-    private final short DAYS = 31;
-    private String name;
-    private boolean[] track;
-    private short counter;
+import java.time.LocalDate;
 
-    public Habit(String title) {
+class Habit {
+    private final short DAYS = 5;
+    private String name;
+    private Log[] track;
+
+    public Habit(String title, LocalDate creationDate) {
         this.name = title;
-        track = new boolean[DAYS];
-        counter = 0;
+        track = new Log[DAYS];
+        for (int i = 0; i < DAYS; i++) {
+            track[i] = new Log();
+            track[i].setDate(creationDate.plusDays(i));
+        }
     }
 
     public void setName(String n) {
@@ -18,14 +22,37 @@ public class Habit {
         return name;
     }
 
-    public void check() {
-        track[counter++] = true;
+    private short findIndexOfDate(LocalDate dateToFind) {
+        for (short i = 0; i < DAYS; i++) {
+            LocalDate date = track[i].getDate();
+            if (date.equals(dateToFind)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean check(LocalDate date) {
+        short index = findIndexOfDate(date);
+        if (index != -1) {
+            track[index].check();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isChecked(LocalDate date) {
+        short index = findIndexOfDate(date);
+        if (index != -1) {
+            return track[index].isChecked();
+        }
+        return false;
     }
 
     public void printHabit() {
         System.out.println(name);
         for (int i = 0; i < (track.length); i++) {
-            if (track[i]) {
+            if (track[i].isChecked()) {
                 System.out.print("[X]");
             } else {
                 System.out.print("[ ]");
