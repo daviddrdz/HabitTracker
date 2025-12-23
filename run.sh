@@ -1,5 +1,9 @@
 #!/bin/bash
-# Compila todos los .java de src y los guarda en bin
+
+if [ ! -d "bin" ]; then
+    mkdir bin
+fi
+
 javac -d bin src/*.java
 
 if [ $? -eq 0 ]; then
