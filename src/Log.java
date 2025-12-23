@@ -1,8 +1,8 @@
 import java.time.LocalDate;
 
 class Log {
-    LocalDate date;
-    boolean checked;
+    private LocalDate date;
+    private boolean checked;
 
     Log() {
         checked = false;

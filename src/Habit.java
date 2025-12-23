@@ -1,7 +1,7 @@
 import java.time.LocalDate;
 
 class Habit {
-    private final short DAYS = 5;
+    private final int DAYS = 31;
     private String name;
     private Log[] track;
 
@@ -22,8 +22,8 @@ class Habit {
         return name;
     }
 
-    private short findIndexOfDate(LocalDate dateToFind) {
-        for (short i = 0; i < DAYS; i++) {
+    private int findIndexOfDate(LocalDate dateToFind) {
+        for (int i = 0; i < DAYS; i++) {
             LocalDate date = track[i].getDate();
             if (date.equals(dateToFind)) {
                 return i;
@@ -33,7 +33,7 @@ class Habit {
     }
 
     public boolean check(LocalDate date) {
-        short index = findIndexOfDate(date);
+        int index = findIndexOfDate(date);
         if (index != -1) {
             track[index].check();
             return true;
@@ -42,7 +42,7 @@ class Habit {
     }
 
     public boolean isChecked(LocalDate date) {
-        short index = findIndexOfDate(date);
+        int index = findIndexOfDate(date);
         if (index != -1) {
             return track[index].isChecked();
         }
@@ -59,5 +59,19 @@ class Habit {
             }
         }
         System.out.println();
+    }
+
+    public String getDataAsString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(this.name);
+        for (Log log : track) {
+            sb.append(";");
+            sb.append(log.getDate().toString());
+            sb.append(":");
+            sb.append(log.isChecked());
+        }
+
+        return sb.toString();
     }
 }

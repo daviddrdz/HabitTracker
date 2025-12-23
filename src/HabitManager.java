@@ -1,14 +1,21 @@
 import java.time.LocalDate;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 class HabitManager {
-    private final short MAX_HABITS = 3;
+    private final int MAX_HABITS = 10;
+    private final String FILE_NAME = "data.txt";
     private ArrayList<Habit> habits;
-    private short counter;
+    private int counter;
 
     public HabitManager() {
         habits = new ArrayList<>();
-        counter = 0;
+        if (!loadData()) {
+            counter = 0;
+        }
     }
 
     public boolean isEmpty() {
@@ -19,11 +26,11 @@ class HabitManager {
         return counter >= MAX_HABITS;
     }
 
-    public Habit getHabit(short habitIndex) {
+    public Habit getHabit(int habitIndex) {
         return habits.get(habitIndex);
     }
 
-    public short getCounter() {
+    public int getCounter() {
         return counter;
     }
 
@@ -37,26 +44,81 @@ class HabitManager {
         return false;
     }
 
-    public short checkHabit(short habitIndex, LocalDate date) {
+    public CheckStatus checkHabit(int habitIndex, LocalDate date) {
         if ((0 <= habitIndex && habitIndex < counter)) {
             if (!habits.get(habitIndex).isChecked(date)) {
                 if (habits.get(habitIndex).check(date)) {
-                    return 1;
+                    return CheckStatus.SUCCESS;
                 }
             } else {
-                return 0;
+                return CheckStatus.ALREADY_CHECKED;
             }
         }
-        return -1;
+        return CheckStatus.FAILURE;
     }
 
-    public boolean deleteHabit(short habitIndex) {
+    public boolean deleteHabit(int habitIndex) {
         if (!isEmpty()) {
             if (0 <= habitIndex && habitIndex < counter) {
                 habits.remove(habitIndex);
                 counter--;
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean saveData() {
+        try {
+            File file = new File(FILE_NAME);
+            FileWriter writer = new FileWriter(file);
+            for (Habit habit : habits) {
+                writer.write(habit.getDataAsString() + "\n");
+            }
+            writer.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean loadData() {
+        try {
+            File file = new File(FILE_NAME);
+
+            if (!file.exists()) {
+                return false;
+            }
+
+            habits.clear();
+            Scanner fileScanner = new Scanner(file);
+            counter = 0;
+
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] data = line.split(";");
+
+                String habitName = data[0];
+                String firstLog = data[1];
+                LocalDate creationDate = LocalDate.parse(firstLog.split(":")[0]);
+
+                addHabit(habitName, creationDate);
+
+                Habit currentHabit = habits.get(counter - 1);
+                for (int i = 1; i < data.length; i++) {
+                    String[] log = data[i].split(":");
+                    LocalDate date = LocalDate.parse(log[0]);
+                    boolean isChecked = Boolean.parseBoolean(log[1]);
+                    if (isChecked) {
+                        currentHabit.check(date);
+                    }
+                }
+            }
+            fileScanner.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }
