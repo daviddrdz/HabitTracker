@@ -156,6 +156,7 @@ public class Main {
 
         try {
             date = LocalDate.of(year, month, day);
+            manager.checkLogUpdate(date);
             System.out.println("\nDate changed succesfully!\n");
         } catch (DateTimeException e) {
             System.out.println("\nError: You must enter a valid date.\n");

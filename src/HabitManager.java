@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.time.DayOfWeek;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileWriter;
@@ -15,6 +16,8 @@ class HabitManager {
         habits = new ArrayList<>();
         if (!loadData()) {
             counter = 0;
+        } else {
+            checkLogUpdate(LocalDate.now());
         }
     }
 
@@ -68,6 +71,15 @@ class HabitManager {
         return false;
     }
 
+    public void checkLogUpdate(LocalDate date) {
+        DayOfWeek day = date.getDayOfWeek();
+        if (day == DayOfWeek.MONDAY) {
+            for (int i = 0; i < habits.size(); i++) {
+                habits.get(i).incrementLog();
+            }
+        }
+    }
+
     public boolean saveData() {
         try {
             File file = new File(FILE_NAME);
@@ -102,7 +114,6 @@ class HabitManager {
                 String habitName = data[0];
                 String firstLog = data[1];
                 LocalDate creationDate = LocalDate.parse(firstLog.split(":")[0]);
-
                 addHabit(habitName, creationDate);
 
                 Habit currentHabit = habits.get(counter - 1);
@@ -110,6 +121,11 @@ class HabitManager {
                     String[] log = data[i].split(":");
                     LocalDate date = LocalDate.parse(log[0]);
                     boolean isChecked = Boolean.parseBoolean(log[1]);
+
+                    while (date.isAfter(currentHabit.getLastday())) {
+                        currentHabit.incrementLog();
+                    }
+
                     if (isChecked) {
                         currentHabit.check(date);
                     }

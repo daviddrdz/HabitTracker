@@ -1,16 +1,21 @@
 import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.util.ArrayList;
 
 class Habit {
-    private final int DAYS = 31;
     private String name;
-    private Log[] track;
+    private LocalDate creationDate;
+    private ArrayList<Log> track;
 
-    public Habit(String title, LocalDate creationDate) {
+    public Habit(String title, LocalDate date) {
         this.name = title;
-        track = new Log[DAYS];
-        for (int i = 0; i < DAYS; i++) {
-            track[i] = new Log();
-            track[i].setDate(creationDate.plusDays(i));
+        this.creationDate = date;
+        track = new ArrayList<>();
+        int days = getRemainingDays(creationDate);
+        for (int i = 0; i < days; i++) {
+            Log log = new Log();
+            log.setDate(creationDate.plusDays(i));
+            track.add(log);
         }
     }
 
@@ -22,20 +27,18 @@ class Habit {
         return name;
     }
 
-    private int findIndexOfDate(LocalDate dateToFind) {
-        for (int i = 0; i < DAYS; i++) {
-            LocalDate date = track[i].getDate();
-            if (date.equals(dateToFind)) {
-                return i;
-            }
-        }
-        return -1;
+    public LocalDate getCreationDate() {
+        return creationDate;
+    }
+
+    public LocalDate getLastday() {
+        return track.getLast().getDate();
     }
 
     public boolean check(LocalDate date) {
         int index = findIndexOfDate(date);
         if (index != -1) {
-            track[index].check();
+            track.get(index).check();
             return true;
         }
         return false;
@@ -44,21 +47,18 @@ class Habit {
     public boolean isChecked(LocalDate date) {
         int index = findIndexOfDate(date);
         if (index != -1) {
-            return track[index].isChecked();
+            return track.get(index).isChecked();
         }
         return false;
     }
 
-    public void printHabit() {
-        System.out.println(name);
-        for (int i = 0; i < (track.length); i++) {
-            if (track[i].isChecked()) {
-                System.out.print("[X]");
-            } else {
-                System.out.print("[ ]");
-            }
+    public void incrementLog() {
+        LocalDate lastLogDay = track.getLast().getDate();
+        for (int i = 1; i <= 7; i++) {
+            Log log = new Log();
+            log.setDate(lastLogDay.plusDays(i));
+            track.add(log);
         }
-        System.out.println();
     }
 
     public String getDataAsString() {
@@ -73,5 +73,61 @@ class Habit {
         }
 
         return sb.toString();
+    }
+
+    public void printHabit() {
+        System.out.println(this.name);
+        int weeks = 1;
+        System.out.print("Week " + weeks + ": ");
+
+        for (int i = 0; i < track.size(); i++) {
+            Log currentLog = track.get(i);
+            LocalDate date = currentLog.getDate();
+
+            if (i > 0 && date.getDayOfWeek() == DayOfWeek.MONDAY) {
+                System.out.println();
+                weeks++;
+                System.out.print("Week " + weeks + ": ");
+            }
+
+            if (currentLog.isChecked()) {
+                System.out.print("[X]");
+            } else {
+                System.out.print("[ ]");
+            }
+        }
+        System.out.println();
+    }
+
+    private int findIndexOfDate(LocalDate dateToFind) {
+        for (int i = 0; i < track.size(); i++) {
+            LocalDate date = track.get(i).getDate();
+            if (date.equals(dateToFind)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getRemainingDays(LocalDate date) {
+        DayOfWeek day = date.getDayOfWeek();
+        switch (day) {
+            case MONDAY:
+                return 7;
+            case TUESDAY:
+                return 6;
+            case WEDNESDAY:
+                return 5;
+            case THURSDAY:
+                return 4;
+            case FRIDAY:
+                return 3;
+            case SATURDAY:
+                return 2;
+            case SUNDAY:
+                return 1;
+            default:
+                return 0;
+        }
     }
 }
